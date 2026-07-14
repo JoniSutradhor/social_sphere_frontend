@@ -66,9 +66,14 @@ const routes = {
         title: 'auth/login',
     }),
     registration: new Route({
-        path: '/register',
+        path: '/registration',
         icon: null,
         title: 'auth/registration',
+    }),
+    socialSphereHome: new Route({
+        path: '/feed',
+        icon: null,
+        title: 'home/feed',
     }),
 };
 

@@ -4,6 +4,8 @@ import { SuspensedComponent } from 'utils/react';
 // import PageLoader from './components/PageLoader';
 import routes from './index';
 import PageLoader from './components/PageLoader';
+import FeedPostWrapper from 'pages/Feed';
+import AuthGuard from 'components/AuthGuard';
 
 // const DashboardLayout = SuspensedComponent(
 //     React.lazy(() => import('layouts/Dashboard'))
@@ -17,9 +19,6 @@ const MainLayout = SuspensedComponent(React.lazy(() => import('layouts/Main')));
 const AppRoot = SuspensedComponent(
     React.lazy(() => import('core_components/AppRoot'))
 );
-// const AuthGuard = PageLoader(
-//     React.lazy(() => import('components/AuthGuard') as any)
-// );
 const Login = PageLoader(
     React.lazy(() => import('pages/Login'))
 );
@@ -47,13 +46,29 @@ const routesConfig = [
                 children: [
                     {
                         path: routes.login.path,
-                        element: <Login />,
+                        element: (
+                            <AuthGuard guestOnly>
+                                <Login />
+                            </AuthGuard>
+                        ),
                     },
                     {
                         path: routes.registration.path,
-                        element: <Registration />,
+                        element: (
+                            <AuthGuard guestOnly>
+                                <Registration />
+                            </AuthGuard>
+                        ),
                     },
                 ],
+            },
+            {
+                path: routes.socialSphereHome.path,
+                element: (
+                    <AuthGuard>
+                        <FeedPostWrapper />
+                    </AuthGuard>
+                ),
             },
         ],
     },

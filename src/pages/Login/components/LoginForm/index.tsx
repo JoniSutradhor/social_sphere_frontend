@@ -13,9 +13,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from 'pages/Login/validation/index.schema';
 import { ControlledTextField } from 'components/ControlledTextField';
 import ControlledLoadingButton from 'components/ControlledLoadingButton';
+import SocialSphereApiAuth from 'api/socialSphereApiAuth';
+import { useNavigate } from 'react-router';
+import { toast } from 'core_components/Toaster';
+import { AuthLayoutPageEnum } from 'layouts/Auth/utils';
 
 
 function LoginForm() {
+    const navigate = useNavigate();
     const {
         control,
         handleSubmit,
@@ -32,17 +37,21 @@ function LoginForm() {
         mode: 'onChange',
     });
 
-    // const onSubmit = async (data: LoginFormData) => {
-    //     try {
-    //         await login(data); // API call
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
+    const onSubmit = async (values: LoginFormData) => {
+        try {
+            const response = await SocialSphereApiAuth.login(values);
 
-    const onSubmit = async (data: LoginFormData) => {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        console.log(data);
+            SocialSphereApiAuth.saveSession(response);
+
+            toast.success('Login successful');
+
+            navigate('/feed');
+        } catch (err) {
+            const message =
+                err instanceof Error ? err.message : 'Unable to login';
+
+            toast.error(message);
+        }
     };
 
     return (
@@ -184,7 +193,7 @@ function LoginForm() {
 
             <Typography sx={{ fontSize: 14, textAlign: 'center' }}>
                 Dont have an account?{' '}
-                <Link href="#" underline="none" sx={{ color: '#1890FF' }}>
+                <Link href={AuthLayoutPageEnum.REGISTRATION} underline="none" sx={{ color: '#1890FF' }}>
                     Create New Account
                 </Link>
             </Typography>

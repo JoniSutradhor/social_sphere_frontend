@@ -13,8 +13,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registrationSchema, type RegistrationFormData } from 'pages/Registration/validation/index.schema';
 import { ControlledTextField } from 'components/ControlledTextField';
 import ControlledLoadingButton from 'components/ControlledLoadingButton';
+import { toast } from 'core_components/Toaster';
+import SocialSphereApiAuth from 'api/socialSphereApiAuth';
+import { useNavigate } from 'react-router';
+import { AuthLayoutPageEnum } from 'layouts/Auth/utils';
 
 function RegistrationForm() {
+    const navigate = useNavigate();
     const {
         control,
         handleSubmit,
@@ -34,17 +39,21 @@ function RegistrationForm() {
         mode: 'onChange',
     });
 
-    // const onSubmit = async (data: RegistrationFormData) => {
-    //     try {
-    //         await register(data); // API call
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
+    const onSubmit = async (values: RegistrationFormData) => {
+        try {
+            const response = await SocialSphereApiAuth.register(values);
 
-    const onSubmit = async (data: RegistrationFormData) => {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        console.log(data);
+            SocialSphereApiAuth.saveSession(response);
+
+            toast.success('Registration successful');
+
+            navigate('/feed');
+        } catch (err) {
+            const message =
+                err instanceof Error ? err.message : 'Registration failed';
+
+            toast.error(message);
+        }
     };
 
     return (
@@ -216,7 +225,7 @@ function RegistrationForm() {
 
             <Typography sx={{ fontSize: 14, textAlign: 'center' }}>
                 Already have an account?{' '}
-                <Link href="#" underline="none" sx={{ color: '#1890FF' }}>
+                <Link href={AuthLayoutPageEnum.LOGIN} underline="none" sx={{ color: '#1890FF' }}>
                     Login
                 </Link>
             </Typography>
