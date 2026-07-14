@@ -60,6 +60,16 @@ const routes = {
         icon: null,
         title: 'feed/home',
     }),
+    login: new Route({
+        path: '/login',
+        icon: null,
+        title: 'auth/login',
+    }),
+    registration: new Route({
+        path: '/register',
+        icon: null,
+        title: 'auth/registration',
+    }),
 };
 
 export default routes;
