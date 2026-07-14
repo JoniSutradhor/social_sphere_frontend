@@ -4,18 +4,17 @@ import {
     Typography,
     Button,
     FormControlLabel,
-    Radio,
+    Checkbox,
     Link,
 } from '@mui/material';
 import { assetUrl } from 'utils/url';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormData } from 'pages/Login/validation/index.schema';
+import { registrationSchema, type RegistrationFormData } from 'pages/Registration/validation/index.schema';
 import { ControlledTextField } from 'components/ControlledTextField';
 import ControlledLoadingButton from 'components/ControlledLoadingButton';
 
-
-function LoginForm() {
+function RegistrationForm() {
     const {
         control,
         handleSubmit,
@@ -23,24 +22,27 @@ function LoginForm() {
             isSubmitting,
             isValid,
         },
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<RegistrationFormData>({
+        resolver: zodResolver(registrationSchema),
         defaultValues: {
+            firstName: '',
+            lastName: '',
             email: '',
             password: '',
+            repeatPassword: '',
         },
         mode: 'onChange',
     });
 
-    // const onSubmit = async (data: LoginFormData) => {
+    // const onSubmit = async (data: RegistrationFormData) => {
     //     try {
-    //         await login(data); // API call
+    //         await register(data); // API call
     //     } catch (error) {
     //         console.error(error);
     //     }
     // };
 
-    const onSubmit = async (data: LoginFormData) => {
+    const onSubmit = async (data: RegistrationFormData) => {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         console.log(data);
     };
@@ -48,12 +50,12 @@ function LoginForm() {
     return (
         <Box>
             <Typography sx={{ color: '#2D3748', textAlign: 'center', mb: '8px' }}>
-                Welcome back
+                Get Started Now
             </Typography>
             <Typography
                 sx={{ fontSize: 28, textAlign: 'center', fontWeight: 500, mb: '50px' }}
             >
-                Login to your account
+                Registration
             </Typography>
 
             <Button
@@ -80,7 +82,7 @@ function LoginForm() {
                     '&:hover': { borderColor: '#F0F2F5', boxShadow: 'none' },
                 }}
             >
-                Or sign-in with google
+                Register with google
             </Button>
 
             <Box sx={{ position: 'relative', textAlign: 'center', mb: '40px' }}>
@@ -118,6 +120,34 @@ function LoginForm() {
 
                 <ControlledTextField
                     control={control}
+                    name="firstName"
+                    label="First Name"
+                    fullWidth
+                    sx={{
+                        mb: '14px',
+                        '& .MuiOutlinedInput-root': {
+                            height: 48,
+                            borderRadius: '6px',
+                        },
+                    }}
+                />
+
+                <ControlledTextField
+                    control={control}
+                    name="lastName"
+                    label="Last Name"
+                    fullWidth
+                    sx={{
+                        mb: '14px',
+                        '& .MuiOutlinedInput-root': {
+                            height: 48,
+                            borderRadius: '6px',
+                        },
+                    }}
+                />
+
+                <ControlledTextField
+                    control={control}
                     name="email"
                     label="Email"
                     fullWidth
@@ -146,28 +176,30 @@ function LoginForm() {
                     }}
                 />
 
-                <Box
+                <ControlledTextField
+                    control={control}
+                    name="repeatPassword"
+                    label="Repeat Password"
+                    fullWidth
+                    type="password"
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        mt: 1,
+                        mb: '14px',
+                        '& .MuiOutlinedInput-root': {
+                            height: 48,
+                            borderRadius: '6px',
+                        },
                     }}
-                >
-                    <FormControlLabel
-                        control={<Radio checked sx={{ color: '#1890FF' }} />}
-                        label="Remember me"
-                        sx={{ '& .MuiFormControlLabel-label': { fontSize: 14, color: '#2D3748' } }}
-                    />
-                    <Link
-                        href="#"
-                        underline="none"
-                        sx={{ color: '#1890FF', fontSize: 14 }}
-                    >
-                        Forgot password?
-                    </Link>
-                </Box>
+                />
+
+                <FormControlLabel
+                    control={<Checkbox defaultChecked sx={{ color: '#1890FF' }} />}
+                    label="I agree to terms & conditions"
+                    sx={{
+                        mt: 1,
+                        '& .MuiFormControlLabel-label': { fontSize: 14, color: '#2D3748' },
+                    }}
+                />
+
                 <ControlledLoadingButton
                     fullWidth
                     type="submit"
@@ -178,18 +210,18 @@ function LoginForm() {
                         mb: '60px',
                     }}
                 >
-                    Login now
+                    Register now
                 </ControlledLoadingButton>
             </Box>
 
             <Typography sx={{ fontSize: 14, textAlign: 'center' }}>
-                Dont have an account?{' '}
+                Already have an account?{' '}
                 <Link href="#" underline="none" sx={{ color: '#1890FF' }}>
-                    Create New Account
+                    Login
                 </Link>
             </Typography>
         </Box>
     );
 }
 
-export default memo(LoginForm);
+export default memo(RegistrationForm);

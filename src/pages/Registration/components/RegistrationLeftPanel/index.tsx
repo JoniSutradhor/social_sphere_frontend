@@ -4,7 +4,7 @@ import { assetUrl } from 'utils/url';
 
 function RegistrationLeftPanel() {
     const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
+    const isDarkMode = theme.palette.mode === 'dark';
 
     return (
         <Box
@@ -19,7 +19,7 @@ function RegistrationLeftPanel() {
             <Box
                 component="img"
                 src={assetUrl(
-                    isDark ? '/auth/registration1.png' : '/auth/registration.png'
+                    isDarkMode ? '/auth/registration1.png' : '/auth/registration.png'
                 )}
                 alt="Registration"
                 sx={{ maxWidth: '100%' }}
