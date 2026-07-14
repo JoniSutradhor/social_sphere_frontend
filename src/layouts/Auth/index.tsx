@@ -1,6 +1,4 @@
 import { type ReactNode } from 'react';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
 import routes from 'routes/index';
 import { assetUrl } from 'utils/url';
 import LoginLeftPanel from 'pages/Login/components/LoginLeftPanel';
@@ -27,82 +25,42 @@ function Auth({ page, children }: AuthLayoutProps) {
     const leftPanel = getLeftPanelPage(page);
 
     return (
-        <Box
-            sx={{
-                py: { xs: 6, lg: '100px' },
-                bgcolor: '#F0F2F5',
-                position: 'relative',
-                zIndex: 1,
-                minHeight: '100vh',
-                overflow: 'hidden',
-            }}
-        >
-            {/* Decorative shapes - behind everything, z-index -1 */}
-            <Box
-                component="img"
-                src={assetUrl('/auth/shape1.svg')}
-                alt=""
-                sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    zIndex: -1,
-                    display: { xs: 'none', lg: 'block' },
-                }}
-            />
-            <Box
-                component="img"
-                src={assetUrl('/auth/shape2.svg')}
-                alt=""
-                sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 20,
-                    zIndex: -1,
-                    display: { xs: 'none', lg: 'block' },
-                }}
-            />
-            <Box
-                component="img"
-                src={assetUrl('/auth/shape3.svg')}
-                alt=""
-                sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: { lg: 494, xl: 327 },
-                    zIndex: -1,
-                    display: { xs: 'none', lg: 'block' },
-                }}
-            />
+        <section className={`_social_${page}_wrapper _layout_main_wrapper`}>
+            <div className="_shape_one">
+                <img src={assetUrl('/auth/shape1.svg')} alt="" className="_shape_img" />
+                <img src={assetUrl('/auth/dark_shape.svg')} alt="" className="_dark_shape" />
+            </div>
+            <div className="_shape_two">
+                <img src={assetUrl('/auth/shape2.svg')} alt="" className="_shape_img" />
+                <img src={assetUrl('/auth/dark_shape1.svg')} alt="" className="_dark_shape _dark_shape_opacity" />
+            </div>
+            <div className="_shape_three">
+                <img src={assetUrl('/auth/shape3.svg')} alt="" className="_shape_img" />
+                <img src={assetUrl('/auth/dark_shape2.svg')} alt="" className="_dark_shape _dark_shape_opacity" />
+            </div>
 
-            <Box sx={{ maxWidth: 1320, mx: 'auto', px: 2 }}>
-                <Grid container sx={{ alignItems: 'center' }} spacing={4}>
-                    <Grid size={{ xs: 12, lg: 8 }}>
-                        <Box sx={{ display: 'flex' }}>{leftPanel}</Box>
-                    </Grid>
-                    <Grid size={{ xs: 12, lg: 4 }}>
-                        <Box
-                            sx={{
-                                bgcolor: '#FFFFFF',
-                                borderRadius: '6px',
-                                p: { xs: 3, lg: '48px' },
-                                textAlign: 'center',
-                            }}
-                        >
-                            <Box component="a" href={routes.home.path} target="_self">
-                                <Box
-                                    component="img"
-                                    src={assetUrl('/logo.svg')}
-                                    alt="Social Sphere"
-                                    sx={{ mx: 'auto', maxWidth: 161, display: 'block', mb: '28px' }}
-                                />
-                            </Box>
-                            {children}
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Box>
-        </Box>
+            <div className={`_social_${page}_wrap`}>
+                <div className="container">
+                    <div className="row align-items-center">
+                        <div className="col-xl-8 col-lg-8 col-md-12 col-sm-12">
+                            <div className={`_social_${page}_left`}>
+                                <div className={`_social_${page}_left_image`}>{leftPanel}</div>
+                            </div>
+                        </div>
+                        <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                            <div className={`_social_${page}_content`}>
+                                <div className={`_social_${page}_left_logo _mar_b28`}>
+                                    <a href={routes.home.path}>
+                                        <img src={assetUrl('/logo.svg')} alt="Social Sphere" className="_left_logo" />
+                                    </a>
+                                </div>
+                                {children}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 }
 

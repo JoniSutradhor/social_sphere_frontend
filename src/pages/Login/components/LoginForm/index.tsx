@@ -1,23 +1,12 @@
 import { memo } from 'react';
-import {
-    Box,
-    Typography,
-    Button,
-    FormControlLabel,
-    Radio,
-    Link,
-} from '@mui/material';
 import { assetUrl } from 'utils/url';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from 'pages/Login/validation/index.schema';
-import { ControlledTextField } from 'components/ControlledTextField';
-import ControlledLoadingButton from 'components/ControlledLoadingButton';
 import SocialSphereApiAuth from 'api/socialSphereApiAuth';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { toast } from 'core_components/Toaster';
-import { AuthLayoutPageEnum } from 'layouts/Auth/utils';
-
+import routes from 'routes/index';
 
 function LoginForm() {
     const navigate = useNavigate();
@@ -55,149 +44,97 @@ function LoginForm() {
     };
 
     return (
-        <Box>
-            <Typography sx={{ color: '#2D3748', textAlign: 'center', mb: '8px' }}>
-                Welcome back
-            </Typography>
-            <Typography
-                sx={{ fontSize: 28, textAlign: 'center', fontWeight: 500, mb: '50px' }}
-            >
-                Login to your account
-            </Typography>
+        <>
+            <p className="_social_login_content_para _mar_b8">Welcome back</p>
+            <h4 className="_social_login_content_title _titl4 _mar_b50">Login to your account</h4>
 
-            <Button
-                fullWidth
-                variant="outlined"
-                startIcon={
-                    <Box
-                        component="img"
-                        src={assetUrl('/auth/google.svg')}
-                        alt="Google"
-                        sx={{ maxWidth: 20 }}
-                    />
-                }
-                sx={{
-                    mb: '40px',
-                    py: '12px',
-                    px: '60px',
-                    textTransform: 'none',
-                    borderColor: '#F0F2F5',
-                    bgcolor: '#FFFFFF',
-                    color: '#312000',
-                    fontWeight: 500,
-                    borderRadius: '6px',
-                    '&:hover': { borderColor: '#F0F2F5', boxShadow: 'none' },
-                }}
-            >
-                Or sign-in with google
-            </Button>
+            <button type="button" className="_social_login_content_btn _mar_b40">
+                <img src={assetUrl('/auth/google.svg')} alt="Image" className="_google_img" /> <span>Or sign-in with google</span>
+            </button>
 
-            <Box sx={{ position: 'relative', textAlign: 'center', mb: '40px' }}>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        left: 0,
-                        bottom: '11px',
-                        width: 108,
-                        height: 0,
-                        borderTop: '1px solid #DFDFDF',
-                        borderRadius: '6px',
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        right: 0,
-                        bottom: '11px',
-                        width: 108,
-                        height: 0,
-                        borderTop: '1px solid #DFDFDF',
-                        borderRadius: '6px',
-                    }}
-                />
-                <Typography component="span" sx={{ fontSize: 14, color: '#C4C4C4' }}>
-                    Or
-                </Typography>
-            </Box>
+            <div className="_social_login_content_bottom_txt _mar_b40">
+                <span>Or</span>
+            </div>
 
-            <Box component="form"
-                noValidate
-                onSubmit={handleSubmit(onSubmit)}
-                sx={{ textAlign: 'left' }}>
+            <form className="_social_login_form" noValidate onSubmit={handleSubmit(onSubmit)}>
+                <div className="row">
+                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div className="_social_login_form_input _mar_b14">
+                            <label className="_social_login_label _mar_b8">Email</label>
+                            <Controller
+                                name="email"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <>
+                                        <input {...field} type="email" className="form-control _social_login_input" />
+                                        {fieldState.error && (
+                                            <p className="text-danger mt-1 mb-0">{fieldState.error.message}</p>
+                                        )}
+                                    </>
+                                )}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div className="_social_login_form_input _mar_b14">
+                            <label className="_social_login_label _mar_b8">Password</label>
+                            <Controller
+                                name="password"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <>
+                                        <input {...field} type="password" className="form-control _social_login_input" />
+                                        {fieldState.error && (
+                                            <p className="text-danger mt-1 mb-0">{fieldState.error.message}</p>
+                                        )}
+                                    </>
+                                )}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-lg-6 col-xl-6 col-md-6 col-sm-12">
+                        <div className="form-check _social_login_form_check">
+                            <input
+                                className="form-check-input _social_login_form_check_input"
+                                type="radio"
+                                name="flexRadioDefault"
+                                id="flexRadioDefault2"
+                                defaultChecked
+                            />
+                            <label className="form-check-label _social_login_form_check_label" htmlFor="flexRadioDefault2">
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+                    <div className="col-lg-6 col-xl-6 col-md-6 col-sm-12">
+                        <div className="_social_login_form_left">
+                            <p className="_social_login_form_left_para">Forgot password?</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-lg-12 col-md-12 col-xl-12 col-sm-12">
+                        <div className="_social_login_form_btn _mar_t40 _mar_b60">
+                            <button
+                                type="submit"
+                                className="_social_login_form_btn_link _btn1"
+                                disabled={!isValid || isSubmitting}
+                            >
+                                {isSubmitting ? 'Logging in...' : 'Login now'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-                <ControlledTextField
-                    control={control}
-                    name="email"
-                    label="Email"
-                    fullWidth
-                    type="email"
-                    sx={{
-                        mb: '14px',
-                        '& .MuiOutlinedInput-root': {
-                            height: 48,
-                            borderRadius: '6px',
-                        },
-                    }}
-                />
-
-                <ControlledTextField
-                    control={control}
-                    name="password"
-                    label="Password"
-                    fullWidth
-                    type="password"
-                    sx={{
-                        mb: '14px',
-                        '& .MuiOutlinedInput-root': {
-                            height: 48,
-                            borderRadius: '6px',
-                        },
-                    }}
-                />
-
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        mt: 1,
-                    }}
-                >
-                    <FormControlLabel
-                        control={<Radio checked sx={{ color: '#1890FF' }} />}
-                        label="Remember me"
-                        sx={{ '& .MuiFormControlLabel-label': { fontSize: 14, color: '#2D3748' } }}
-                    />
-                    <Link
-                        href="#"
-                        underline="none"
-                        sx={{ color: '#1890FF', fontSize: 14 }}
-                    >
-                        Forgot password?
-                    </Link>
-                </Box>
-                <ControlledLoadingButton
-                    fullWidth
-                    type="submit"
-                    loading={isSubmitting}
-                    disabled={!isValid}
-                    sx={{
-                        mt: '40px',
-                        mb: '60px',
-                    }}
-                >
-                    Login now
-                </ControlledLoadingButton>
-            </Box>
-
-            <Typography sx={{ fontSize: 14, textAlign: 'center' }}>
-                Dont have an account?{' '}
-                <Link href={AuthLayoutPageEnum.REGISTRATION} underline="none" sx={{ color: '#1890FF' }}>
-                    Create New Account
-                </Link>
-            </Typography>
-        </Box>
+            <div className="_social_login_bottom_txt">
+                <p className="_social_login_bottom_txt_para">
+                    Dont have an account? <Link to={routes.registration.path}>Create New Account</Link>
+                </p>
+            </div>
+        </>
     );
 }
 

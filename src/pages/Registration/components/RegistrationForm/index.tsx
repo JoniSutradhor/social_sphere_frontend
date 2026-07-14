@@ -15,8 +15,8 @@ import { ControlledTextField } from 'components/ControlledTextField';
 import ControlledLoadingButton from 'components/ControlledLoadingButton';
 import { toast } from 'core_components/Toaster';
 import SocialSphereApiAuth from 'api/socialSphereApiAuth';
-import { useNavigate } from 'react-router';
-import { AuthLayoutPageEnum } from 'layouts/Auth/utils';
+import { useNavigate, Link as RouterLink } from 'react-router';
+import routes from 'routes/index';
 
 function RegistrationForm() {
     const navigate = useNavigate();
@@ -225,7 +225,7 @@ function RegistrationForm() {
 
             <Typography sx={{ fontSize: 14, textAlign: 'center' }}>
                 Already have an account?{' '}
-                <Link href={AuthLayoutPageEnum.LOGIN} underline="none" sx={{ color: '#1890FF' }}>
+                <Link component={RouterLink} to={routes.login.path} underline="none" sx={{ color: '#1890FF' }}>
                     Login
                 </Link>
             </Typography>
