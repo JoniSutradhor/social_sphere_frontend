@@ -58,7 +58,7 @@ const routes = {
     home: new Route({
         path: '/',
         icon: null,
-        title: 'feed/home',
+        title: 'home/feed',
     }),
     login: new Route({
         path: '/login',

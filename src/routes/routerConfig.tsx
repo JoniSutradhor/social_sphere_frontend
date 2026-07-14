@@ -1,11 +1,12 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 import { SuspensedComponent } from 'utils/react';
 // import PageLoader from './components/PageLoader';
 import routes from './index';
 import PageLoader from './components/PageLoader';
 import FeedPostWrapper from 'pages/Feed';
 import AuthGuard from 'components/AuthGuard';
+import HomeRedirect from './components/HomeRedirect';
 
 // const DashboardLayout = SuspensedComponent(
 //     React.lazy(() => import('layouts/Dashboard'))
@@ -35,9 +36,7 @@ const routesConfig = [
                 children: [
                     {
                         path: routes.home.path,
-                        element: (
-                            <Navigate to={routes.home.path} replace />
-                        ),
+                        element: <HomeRedirect />,
                     },
                 ],
             },
