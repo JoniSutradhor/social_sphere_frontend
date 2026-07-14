@@ -3,17 +3,25 @@ import avatarImage from "staticImages/txt_img.png";
 
 interface CreateNewPostProps {
     placeholder?: string;
+    onPost?: (text: string) => void | Promise<void>;
 }
 
 const CreateNewPost: React.FC<CreateNewPostProps> = ({
     placeholder = "Write something ...",
+    onPost,
 }) => {
     const [text, setText] = useState<string>("");
+    const [posting, setPosting] = useState(false);
 
-    const handlePost = () => {
-        if (!text.trim()) return;
-        console.log("Post clicked:", text);
-        setText("");
+    const handlePost = async () => {
+        if (!text.trim() || posting) return;
+        setPosting(true);
+        try {
+            await onPost?.(text.trim());
+            setText("");
+        } finally {
+            setPosting(false);
+        }
     };
 
     const handlePhotoClick = () => {
@@ -115,7 +123,7 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                     </div>
                 </div>
                 <div className="_feed_inner_text_area_btn">
-                    <button type="button" className="_feed_inner_text_area_btn_link" onClick={handlePost}>
+                    <button type="button" className="_feed_inner_text_area_btn_link" onClick={handlePost} disabled={posting}>
                         <svg className="_mar_img" xmlns="http://www.w3.org/2000/svg" width="14" height="13" fill="none" viewBox="0 0 14 13">
                             <path
                                 fill="#fff"
@@ -184,7 +192,7 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                         </div>
                     </div>
                     <div className="_feed_inner_text_area_btn">
-                        <button type="button" className="_feed_inner_text_area_btn_link" onClick={handlePost}>
+                        <button type="button" className="_feed_inner_text_area_btn_link" onClick={handlePost} disabled={posting}>
                             <svg className="_mar_img" xmlns="http://www.w3.org/2000/svg" width="14" height="13" fill="none" viewBox="0 0 14 13">
                                 <path
                                     fill="#fff"

@@ -33,6 +33,6 @@ export interface Post {
     extraReactorCount?: number;
     commentCount?: number;
     shareCount?: number;
-    previousCommentCount?: number;
+    hasMoreComments?: boolean;
     comments: Comment[];
 }

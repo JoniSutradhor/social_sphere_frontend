@@ -10,12 +10,14 @@ export interface FeedPostProps {
     post: Post;
     currentUserAvatar: string;
     menuItems?: MenuItem[];
+    newCommentTextareaId?: string;
+    activeReaction?: string | null;
     onMenuSelect?: (key: string) => void;
     onReact?: () => void;
     onComment?: () => void;
     onShare?: () => void;
     onNewComment?: (text: string) => void;
-    onLoadPreviousComments?: () => void;
+    onLoadPreviousComments?: () => void | Promise<void>;
     onLikeComment?: (commentId: string) => void;
     onShareComment?: (commentId: string) => void;
     onReplyComment?: (commentId: string, text: string) => void;
@@ -32,6 +34,8 @@ const FeedPost: FC<FeedPostProps> = ({
     post,
     currentUserAvatar,
     menuItems,
+    newCommentTextareaId,
+    activeReaction,
     onMenuSelect,
     onReact,
     onComment,
@@ -52,7 +56,7 @@ const FeedPost: FC<FeedPostProps> = ({
         extraReactorCount,
         commentCount,
         shareCount,
-        previousCommentCount,
+        hasMoreComments,
         comments,
     } = post;
 
@@ -77,12 +81,13 @@ const FeedPost: FC<FeedPostProps> = ({
                 shareCount={shareCount}
             />
 
-            <PostActionBar onReact={onReact} onComment={onComment} onShare={onShare} />
+            <PostActionBar activeReaction={activeReaction} onReact={onReact} onComment={onComment} onShare={onShare} />
 
             <CommentsSection
                 currentUserAvatar={currentUserAvatar}
                 comments={comments}
-                previousCommentCount={previousCommentCount}
+                hasMoreComments={hasMoreComments}
+                newCommentTextareaId={newCommentTextareaId}
                 onNewComment={onNewComment}
                 onLoadPrevious={onLoadPreviousComments}
                 onLike={onLikeComment}

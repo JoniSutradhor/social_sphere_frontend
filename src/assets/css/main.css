@@ -5912,6 +5912,7 @@
     border-radius: 18px;
     width: 100%;
     max-width: fit-content;
+    min-width: 260px;
     position: relative;
     margin: 0 0 50px;
 }
@@ -5942,6 +5943,7 @@
     align-items: center;
     position: absolute;
     right: 0;
+    bottom: -33px;
     background: #fff;
     box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
     padding: 2px 8px 2px 12px;

@@ -6,9 +6,10 @@ import type { Comment } from "components/FeedPost/types";
 export interface CommentsSectionProps {
     currentUserAvatar: string;
     comments?: Comment[];
-    previousCommentCount?: number;
+    hasMoreComments?: boolean;
+    newCommentTextareaId?: string;
     onNewComment?: (text: string) => void;
-    onLoadPrevious?: () => void;
+    onLoadPrevious?: () => void | Promise<void>;
     onLike?: (commentId: string) => void;
     onShare?: (commentId: string) => void;
     onReply?: (commentId: string, text: string) => void;
@@ -16,24 +17,30 @@ export interface CommentsSectionProps {
 
 /**
  * CommentsSection
- * Composes the "write a comment" box, the "view N previous comments"
+ * Composes the "write a comment" box, the "load more comments"
  * expander, and the visible list of comments underneath a post.
  */
 const CommentsSection: FC<CommentsSectionProps> = ({
     currentUserAvatar,
     comments = [],
-    previousCommentCount = 0,
+    hasMoreComments = false,
+    newCommentTextareaId = "new-comment",
     onNewComment,
     onLoadPrevious,
     onLike,
     onShare,
     onReply,
 }) => {
-    const [previousLoaded, setPreviousLoaded] = useState(previousCommentCount === 0);
+    const [loadingMore, setLoadingMore] = useState(false);
 
-    const handleLoadPrevious = () => {
-        setPreviousLoaded(true);
-        onLoadPrevious?.();
+    const handleLoadPrevious = async () => {
+        if (loadingMore) return;
+        setLoadingMore(true);
+        try {
+            await onLoadPrevious?.();
+        } finally {
+            setLoadingMore(false);
+        }
     };
 
     return (
@@ -42,20 +49,12 @@ const CommentsSection: FC<CommentsSectionProps> = ({
                 <CommentComposer
                     avatarSrc={currentUserAvatar}
                     placeholder="Write a comment"
-                    textareaId="new-comment"
+                    textareaId={newCommentTextareaId}
                     onSubmit={onNewComment}
                 />
             </div>
 
             <div className="_timline_comment_main">
-                {!previousLoaded && (
-                    <div className="_previous_comment">
-                        <button type="button" className="_previous_comment_txt" onClick={handleLoadPrevious}>
-                            View {previousCommentCount} previous comments
-                        </button>
-                    </div>
-                )}
-
                 {comments.map((comment) => (
                     <CommentItem
                         key={comment.id}
@@ -66,6 +65,14 @@ const CommentsSection: FC<CommentsSectionProps> = ({
                         onReplySubmit={onReply}
                     />
                 ))}
+
+                {hasMoreComments && (
+                    <div className="_previous_comment">
+                        <button type="button" className="_previous_comment_txt" onClick={handleLoadPrevious} disabled={loadingMore}>
+                            {loadingMore ? "Loading..." : "Load more comments"}
+                        </button>
+                    </div>
+                )}
             </div>
         </>
     );

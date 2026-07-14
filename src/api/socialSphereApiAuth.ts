@@ -9,7 +9,8 @@ export interface User {
     email: string;
 }
 
-export interface AuthResponse {
+// POST /auth/login responds with a flat body.
+export interface LoginResponse {
     _id: string;
     firstName: string;
     lastName: string;
@@ -17,18 +18,31 @@ export interface AuthResponse {
     token: string;
 }
 
+// POST /auth/register responds with a nested envelope instead — a real
+// inconsistency between the two endpoints on the backend, not a typo here.
+export interface RegisterResponse {
+    success: boolean;
+    message: string;
+    data: {
+        token: string;
+        user: User;
+    };
+}
+
+export type AuthResponse = LoginResponse | RegisterResponse;
+
 class SocialSphereApiAuth {
     /**
      * Login
      */
-    static login(data: LoginFormData): Promise<AuthResponse> {
-        return Requester.post<AuthResponse>('/auth/login', data);
+    static login(data: LoginFormData): Promise<LoginResponse> {
+        return Requester.post<LoginResponse>('/auth/login', data);
     }
 
     /**
      * Registration
      */
-    static register(data: RegistrationFormData): Promise<AuthResponse> {
+    static register(data: RegistrationFormData): Promise<RegisterResponse> {
         const payload = {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -36,7 +50,7 @@ class SocialSphereApiAuth {
             password: data.password,
         };
 
-        return Requester.post<AuthResponse>('/auth/register', payload);
+        return Requester.post<RegisterResponse>('/auth/register', payload);
     }
 
     /**
@@ -51,8 +65,18 @@ class SocialSphereApiAuth {
      * Persist auth
      */
     static saveSession(response: AuthResponse) {
-        const { token, _id, firstName, lastName, email } = response;
-        const user: User = { id: _id, firstName, lastName, email };
+        const { token, user } =
+            'data' in response
+                ? response.data
+                : {
+                      token: response.token,
+                      user: {
+                          id: response._id,
+                          firstName: response.firstName,
+                          lastName: response.lastName,
+                          email: response.email,
+                      },
+                  };
 
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
