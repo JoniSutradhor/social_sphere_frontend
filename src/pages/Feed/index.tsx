@@ -16,6 +16,7 @@ import FeedLayout from "layouts/Feed";
 import SocialSphereApiComment, {
     type Comment as ApiComment,
     type ReactionType,
+    resolveImageUrl,
 } from "api/socialSphereApiComment";
 import { toast } from "core_components/Toaster";
 import { formatRelativeTime } from "utils/formatRelativeTime";
@@ -92,6 +93,7 @@ const mapPost = (comment: ApiComment): FeedPostEntry => {
         authorAvatar: comment.user.avatar || defaultAvatar,
         timeAgo: formatRelativeTime(comment.createdAt),
         title: comment.content,
+        image: resolveImageUrl(comment.imageUrl),
         likeCount: comment.likeCount,
         userReaction: null,
         replyCount: comment.replyCount,
@@ -143,9 +145,9 @@ function FeedPostWrapper() {
         };
     }, []);
 
-    const handleCreatePost = async (text: string) => {
+    const handleCreatePost = async (text: string, image?: File) => {
         try {
-            const created = await SocialSphereApiComment.createComment(text, PAGE_ID);
+            const created = await SocialSphereApiComment.createComment(text, PAGE_ID, image);
             setPosts((prev) => [mapPost(created), ...prev]);
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to create post"));

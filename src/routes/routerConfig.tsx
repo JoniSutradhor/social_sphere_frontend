@@ -8,15 +8,8 @@ import FeedPostWrapper from 'pages/Feed';
 import AuthGuard from 'components/AuthGuard';
 import HomeRedirect from './components/HomeRedirect';
 
-// const DashboardLayout = SuspensedComponent(
-//     React.lazy(() => import('layouts/Dashboard'))
-// );
-// const SignUpLayout = SuspensedComponent(
-//     React.lazy(() => import('layouts/SignUp'))
-// );
-
 const MainLayout = SuspensedComponent(React.lazy(() => import('layouts/Main')));
-// const AuthLayout = SuspensedComponent(React.lazy(() => import('layouts/Auth')));
+
 const AppRoot = SuspensedComponent(
     React.lazy(() => import('core_components/AppRoot'))
 );

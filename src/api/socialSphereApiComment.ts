@@ -1,4 +1,5 @@
 import Requester from 'utils/requester';
+import config from 'utils/config';
 
 export type ReactionType = 'like' | 'dislike';
 
@@ -17,6 +18,7 @@ export interface Comment {
     parentId: string | null;
     rootId: string | null;
     content: string;
+    imageUrl: string | null;
     likeCount: number;
     dislikeCount: number;
     replyCount: number;
@@ -52,6 +54,11 @@ export interface ListRepliesParams {
     limit?: number;
 }
 
+// Comment.imageUrl is a server-relative path (e.g. "/uploads/xyz.jpg") — this
+// resolves it against the API's own origin, not the app's own asset host.
+export const resolveImageUrl = (imageUrl: string | null): string | undefined =>
+    imageUrl ? `${config.social_sphere_api_url}${imageUrl}` : undefined;
+
 class SocialSphereApiComment {
     /**
      * Top-level comments for a page (cursor-paginated)
@@ -80,10 +87,25 @@ class SocialSphereApiComment {
     }
 
     /**
-     * Create a top-level comment
+     * Create a top-level comment, optionally with an image attached
      */
-    static createComment(content: string, pageId = 'main') {
-        return Requester.post<Comment>('/comments', { content, pageId });
+    static createComment(content: string, pageId = 'main', image?: File) {
+        if (!image) {
+            return Requester.post<Comment>('/comments', { content, pageId });
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('pageId', pageId);
+        formData.append('image', image);
+
+        // Requester's axios instance defaults to Content-Type: application/json,
+        // which makes axios JSON-stringify FormData instead of sending it as
+        // multipart. Setting this (boundary-less) value is what tells axios to
+        // let the browser fill in the real multipart boundary instead.
+        return Requester.post<Comment>('/comments', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     }
 
     /**
@@ -94,10 +116,26 @@ class SocialSphereApiComment {
     }
 
     /**
-     * Edit a comment (author only)
+     * Edit a comment (author only) — pass `image` to replace the attached
+     * image, or `removeImage` to clear it without replacing
      */
-    static updateComment(commentId: string, content: string) {
-        return Requester.put<Comment>(`/comments/${commentId}`, { content });
+    static updateComment(
+        commentId: string,
+        content: string,
+        options: { image?: File; removeImage?: boolean } = {}
+    ) {
+        if (!options.image && !options.removeImage) {
+            return Requester.put<Comment>(`/comments/${commentId}`, { content });
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+        if (options.image) formData.append('image', options.image);
+        if (options.removeImage) formData.append('removeImage', 'true');
+
+        return Requester.put<Comment>(`/comments/${commentId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     }
 
     /**

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import avatarImage from "staticImages/txt_img.png";
 
 interface CreateNewPostProps {
     placeholder?: string;
-    onPost?: (text: string) => void | Promise<void>;
+    onPost?: (text: string, image?: File) => void | Promise<void>;
 }
 
 const CreateNewPost: React.FC<CreateNewPostProps> = ({
@@ -12,20 +12,54 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
 }) => {
     const [text, setText] = useState<string>("");
     const [posting, setPosting] = useState(false);
+    const [image, setImage] = useState<File | null>(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        return () => {
+            if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+        };
+    }, [imagePreviewUrl]);
 
     const handlePost = async () => {
         if (!text.trim() || posting) return;
         setPosting(true);
         try {
-            await onPost?.(text.trim());
+            await onPost?.(text.trim(), image ?? undefined);
             setText("");
+            setImage(null);
+            setImagePreviewUrl((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+            });
         } finally {
             setPosting(false);
         }
     };
 
     const handlePhotoClick = () => {
-        console.log("Photo clicked");
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+
+        setImage(file);
+        setImagePreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(file);
+        });
+    };
+
+    const handleRemoveImage = () => {
+        setImage(null);
+        setImagePreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
     };
 
     const handleVideoClick = () => {
@@ -65,6 +99,45 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                     </label>
                 </div>
             </div>
+
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+            />
+
+            {imagePreviewUrl && (
+                <div style={{ position: "relative", display: "inline-block", marginBottom: 16 }}>
+                    <img
+                        src={imagePreviewUrl}
+                        alt="Attached"
+                        style={{ maxHeight: 220, maxWidth: "100%", borderRadius: 6, display: "block" }}
+                    />
+                    <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        aria-label="Remove image"
+                        style={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            border: "none",
+                            background: "rgba(0,0,0,0.6)",
+                            color: "#fff",
+                            fontSize: 16,
+                            lineHeight: 1,
+                            cursor: "pointer",
+                        }}
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
 
             {/* For Desktop */}
             <div className="_feed_inner_text_area_bottom">
