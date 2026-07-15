@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import avatarImage from "staticImages/txt_img.png";
 
+export type PostVisibility = "public" | "private";
+
 interface CreateNewPostProps {
     placeholder?: string;
-    onPost?: (text: string, image?: File) => void | Promise<void>;
+    onPost?: (text: string, image?: File, visibility?: PostVisibility) => void | Promise<void>;
 }
 
 const CreateNewPost: React.FC<CreateNewPostProps> = ({
@@ -14,6 +16,7 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
     const [posting, setPosting] = useState(false);
     const [image, setImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+    const [visibility, setVisibility] = useState<PostVisibility>("public");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -26,13 +29,14 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
         if (!text.trim() || posting) return;
         setPosting(true);
         try {
-            await onPost?.(text.trim(), image ?? undefined);
+            await onPost?.(text.trim(), image ?? undefined, visibility);
             setText("");
             setImage(null);
             setImagePreviewUrl((prev) => {
                 if (prev) URL.revokeObjectURL(prev);
                 return null;
             });
+            setVisibility("public");
         } finally {
             setPosting(false);
         }
@@ -100,6 +104,27 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                 </div>
             </div>
 
+            <div style={{ margin: "0 0 16px" }}>
+                <select
+                    value={visibility}
+                    onChange={(e) => setVisibility(e.target.value as PostVisibility)}
+                    aria-label="Who can see this post"
+                    style={{
+                        padding: "6px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #E2E8F0",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "#4A5568",
+                        background: "#fff",
+                        cursor: "pointer",
+                    }}
+                >
+                    <option value="public">🌐 Public</option>
+                    <option value="private">🔒 Only me</option>
+                </select>
+            </div>
+
             <input
                 ref={fileInputRef}
                 type="file"
@@ -139,7 +164,6 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                 </div>
             )}
 
-            {/* For Desktop */}
             <div className="_feed_inner_text_area_bottom">
                 <div className="_feed_inner_text_area_item">
                     <div className="_feed_inner_text_area_bottom_photo _feed_common">
@@ -209,9 +233,7 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                     </button>
                 </div>
             </div>
-            {/* For Desktop */}
 
-            {/* For Mobile */}
             <div className="_feed_inner_text_area_bottom_mobile">
                 <div className="_feed_inner_text_mobile">
                     <div className="_feed_inner_text_area_item">
@@ -279,7 +301,6 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({
                     </div>
                 </div>
             </div>
-            {/* For Mobile */}
         </div>
     );
 };

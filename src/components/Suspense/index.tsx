@@ -6,7 +6,6 @@ export interface SuspenseProps extends React.SuspenseProps {
 
 const Suspense = ({ children, ...props }: SuspenseProps) => {
     return (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
         <React.Suspense fallback={<></>} {...props}>
             {children}
         </React.Suspense>

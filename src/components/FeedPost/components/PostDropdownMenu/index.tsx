@@ -2,11 +2,6 @@ import { type FC, useEffect, useRef, useState } from "react";
 import { DotsIcon, SaveIcon, NotificationIcon, HideIcon, EditIcon, DeleteIcon } from "components/FeedPost/icons";
 import type { MenuItem } from "components/FeedPost/types";
 
-/**
- * Default menu items. Consumers can override this entirely via the
- * `items` prop, so the same dropdown works for "my post" (edit/delete)
- * vs. "someone else's post" (report/unfollow, etc).
- */
 const DEFAULT_ITEMS: MenuItem[] = [
     { key: "save", label: "Save Post", icon: <SaveIcon /> },
     { key: "notify", label: "Turn On Notification", icon: <NotificationIcon /> },
@@ -20,11 +15,6 @@ export interface PostDropdownMenuProps {
     onSelect?: (key: string) => void;
 }
 
-/**
- * PostDropdownMenu
- * A trigger (three dots) + popover list. Fully controlled by its own
- * open/closed state, and closes on outside click.
- */
 const PostDropdownMenu: FC<PostDropdownMenuProps> = ({ items = DEFAULT_ITEMS, onSelect }) => {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);

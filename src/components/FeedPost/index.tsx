@@ -22,15 +22,11 @@ export interface FeedPostProps {
     onShareComment?: (commentId: string) => void;
     onReplyComment?: (commentId: string, text: string) => void;
     onLikeReply?: (replyId: string) => void;
+    onShowPostLikes?: () => void;
+    onShowCommentLikes?: (commentId: string) => void;
+    onShowReplyLikes?: (replyId: string) => void;
 }
 
-/**
- * FeedPost
- * The full post card: header, content, reaction summary, action bar,
- * and comments. Every piece above is independently reusable/exported,
- * so consumers can also build custom layouts (e.g. a compact preview
- * card) from the same parts.
- */
 const FeedPost: FC<FeedPostProps> = ({
     post,
     currentUserAvatar,
@@ -47,6 +43,9 @@ const FeedPost: FC<FeedPostProps> = ({
     onShareComment,
     onReplyComment,
     onLikeReply,
+    onShowPostLikes,
+    onShowCommentLikes,
+    onShowReplyLikes,
 }) => {
     const {
         author,
@@ -56,6 +55,7 @@ const FeedPost: FC<FeedPostProps> = ({
         image,
         reactorAvatars,
         extraReactorCount,
+        likeCount,
         commentCount,
         shareCount,
         hasMoreComments,
@@ -79,8 +79,10 @@ const FeedPost: FC<FeedPostProps> = ({
             <ReactionSummary
                 reactorAvatars={reactorAvatars}
                 extraReactorCount={extraReactorCount}
+                likeCount={likeCount}
                 commentCount={commentCount ?? comments?.length ?? 0}
                 shareCount={shareCount}
+                onShowLikes={onShowPostLikes}
             />
 
             <PostActionBar activeReaction={activeReaction} onReact={onReact} onComment={onComment} onShare={onShare} />
@@ -96,6 +98,8 @@ const FeedPost: FC<FeedPostProps> = ({
                 onShare={onShareComment}
                 onReply={onReplyComment}
                 onLikeReply={onLikeReply}
+                onShowLikes={onShowCommentLikes}
+                onShowReplyLikes={onShowReplyLikes}
             />
         </div>
     );

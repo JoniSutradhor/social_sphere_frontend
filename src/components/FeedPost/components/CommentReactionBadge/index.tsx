@@ -3,14 +3,10 @@ import { type FC } from "react";
 
 export interface CommentReactionBadgeProps {
     total?: number;
+    onShowLikes?: () => void;
 }
 
-/**
- * CommentReactionBadge
- * The little thumbs-up + heart icon cluster with a total reaction count,
- * shown on the right side of a comment.
- */
-const CommentReactionBadge: FC<CommentReactionBadgeProps> = ({ total = 0 }) => (
+const CommentReactionBadge: FC<CommentReactionBadgeProps> = ({ total = 0, onShowLikes }) => (
     <div className="_total_reactions">
         <div className="_total_react">
             <span className="_reaction_like">
@@ -20,7 +16,15 @@ const CommentReactionBadge: FC<CommentReactionBadgeProps> = ({ total = 0 }) => (
                 <HeartIcon />
             </span>
         </div>
-        <span className="_total">{total}</span>
+        <span
+            className="_total"
+            onClick={total > 0 ? onShowLikes : undefined}
+            role={total > 0 && onShowLikes ? "button" : undefined}
+            tabIndex={total > 0 && onShowLikes ? 0 : undefined}
+            style={total > 0 && onShowLikes ? { cursor: "pointer" } : undefined}
+        >
+            {total}
+        </span>
     </div>
 );
 

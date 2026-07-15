@@ -20,7 +20,6 @@ const friendsBase: Friend[] = [
     { id: "dylan-field", name: "Dylan Field", title: "CEO of Figma", avatar: peopleImage3, status: "online" },
 ];
 
-// Original markup repeated this trio twice
 const friends: Friend[] = Array.from({ length: 2 }, (_, i) =>
     friendsBase.map((friend) => ({ ...friend, id: `${friend.id}-${i}` }))
 ).flat();

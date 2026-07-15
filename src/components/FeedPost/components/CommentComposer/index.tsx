@@ -10,13 +10,6 @@ export interface CommentComposerProps {
     onImageClick?: () => void;
 }
 
-/**
- * CommentComposer
- * A single-line comment input with an avatar and two icon actions
- * (emoji / attach image). Used both for writing a brand-new top-level
- * comment and for replying to an existing one - just change
- * `placeholder` and `onSubmit`.
- */
 const CommentComposer: FC<CommentComposerProps> = ({
     avatarSrc,
     placeholder = "Write a comment",

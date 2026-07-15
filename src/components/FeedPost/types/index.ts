@@ -13,10 +13,9 @@ export interface Comment {
     authorAvatar: string;
     text: string;
     reactionTotal: number;
+    liked?: boolean;
     timeAgo: string;
     profileHref?: string;
-    // Replies are one level deep (matches the backend's own rule that you
-    // can't reply to a reply), and are eagerly loaded alongside the comment.
     replies?: Comment[];
 }
 
@@ -34,6 +33,7 @@ export interface Post {
     image?: string;
     reactorAvatars?: string[];
     extraReactorCount?: number;
+    likeCount?: number;
     commentCount?: number;
     shareCount?: number;
     hasMoreComments?: boolean;

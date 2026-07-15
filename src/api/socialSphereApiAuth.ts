@@ -9,7 +9,6 @@ export interface User {
     email: string;
 }
 
-// POST /auth/login responds with a flat body.
 export interface LoginResponse {
     _id: string;
     firstName: string;
@@ -18,8 +17,6 @@ export interface LoginResponse {
     token: string;
 }
 
-// POST /auth/register responds with a nested envelope instead — a real
-// inconsistency between the two endpoints on the backend, not a typo here.
 export interface RegisterResponse {
     success: boolean;
     message: string;
@@ -32,16 +29,10 @@ export interface RegisterResponse {
 export type AuthResponse = LoginResponse | RegisterResponse;
 
 class SocialSphereApiAuth {
-    /**
-     * Login
-     */
     static login(data: LoginFormData): Promise<LoginResponse> {
         return Requester.post<LoginResponse>('/auth/login', data);
     }
 
-    /**
-     * Registration
-     */
     static register(data: RegistrationFormData): Promise<RegisterResponse> {
         const payload = {
             firstName: data.firstName,
@@ -53,17 +44,11 @@ class SocialSphereApiAuth {
         return Requester.post<RegisterResponse>('/auth/register', payload);
     }
 
-    /**
-     * Logout
-     */
     static logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     }
 
-    /**
-     * Persist auth
-     */
     static saveSession(response: AuthResponse) {
         const { token, user } =
             'data' in response
@@ -84,18 +69,12 @@ class SocialSphereApiAuth {
         Requester.setCurrentUser(user.id);
     }
 
-    /**
-     * Current user
-     */
     static getCurrentUser(): User | null {
         const user = localStorage.getItem('user');
 
         return user ? JSON.parse(user) : null;
     }
 
-    /**
-     * Logged in?
-     */
     static isAuthenticated(): boolean {
         return !!localStorage.getItem('token');
     }

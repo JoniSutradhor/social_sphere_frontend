@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router';
 import { SuspensedComponent } from 'utils/react';
-// import PageLoader from './components/PageLoader';
 import routes from './index';
 import PageLoader from './components/PageLoader';
 import FeedPostWrapper from 'pages/Feed';

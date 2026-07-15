@@ -14,13 +14,10 @@ export interface CommentsSectionProps {
     onShare?: (commentId: string) => void;
     onReply?: (commentId: string, text: string) => void;
     onLikeReply?: (replyId: string) => void;
+    onShowLikes?: (commentId: string) => void;
+    onShowReplyLikes?: (replyId: string) => void;
 }
 
-/**
- * CommentsSection
- * Composes the "write a comment" box, the "load more comments"
- * expander, and the visible list of comments underneath a post.
- */
 const CommentsSection: FC<CommentsSectionProps> = ({
     currentUserAvatar,
     comments = [],
@@ -32,6 +29,8 @@ const CommentsSection: FC<CommentsSectionProps> = ({
     onShare,
     onReply,
     onLikeReply,
+    onShowLikes,
+    onShowReplyLikes,
 }) => {
     const [loadingMore, setLoadingMore] = useState(false);
 
@@ -66,6 +65,8 @@ const CommentsSection: FC<CommentsSectionProps> = ({
                         onShare={() => onShare?.(comment.id)}
                         onReplySubmit={onReply}
                         onLikeReply={onLikeReply}
+                        onShowLikes={() => onShowLikes?.(comment.id)}
+                        onShowReplyLikes={onShowReplyLikes}
                     />
                 ))}
 

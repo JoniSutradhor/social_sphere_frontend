@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { type JSX, type ReactNode } from 'react';
 import { pathWithId } from 'utils/routes';
 

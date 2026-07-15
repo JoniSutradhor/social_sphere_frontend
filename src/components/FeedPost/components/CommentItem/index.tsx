@@ -10,17 +10,22 @@ export interface CommentItemProps {
     onShare?: () => void;
     onReplySubmit?: (commentId: string, text: string) => void;
     onLikeReply?: (replyId: string) => void;
+    onShowLikes?: () => void;
+    onShowReplyLikes?: (replyId: string) => void;
 }
 
-/**
- * CommentItem
- * Renders one comment (avatar, name, text, reaction total, and the
- * like/reply/share/timestamp row), plus a collapsible reply composer and
- * any existing replies (one level deep — replies can't have their own).
- */
-const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike, onShare, onReplySubmit, onLikeReply }) => {
+const CommentItem: FC<CommentItemProps> = ({
+    comment,
+    currentUserAvatar,
+    onLike,
+    onShare,
+    onReplySubmit,
+    onLikeReply,
+    onShowLikes,
+    onShowReplyLikes,
+}) => {
     const [replying, setReplying] = useState(false);
-    const { id, authorName, authorAvatar, text, reactionTotal, timeAgo, profileHref = "profile.html", replies } = comment;
+    const { id, authorName, authorAvatar, text, reactionTotal, liked, timeAgo, profileHref = "profile.html", replies } = comment;
 
     return (
         <div className="_comment_main">
@@ -45,14 +50,19 @@ const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike,
                         </p>
                     </div>
 
-                    <CommentReactionBadge total={reactionTotal} />
+                    <CommentReactionBadge total={reactionTotal} onShowLikes={onShowLikes} />
 
                     <div className="_comment_reply">
                         <div className="_comment_reply_num">
                             <ul className="_comment_reply_list">
                                 <li>
-                                    <span onClick={onLike} role="button" tabIndex={0} style={{ cursor: "pointer" }}>
-                                        Like.
+                                    <span
+                                        onClick={onLike}
+                                        role="button"
+                                        tabIndex={0}
+                                        style={{ cursor: "pointer", color: liked ? "#1890FF" : undefined, fontWeight: liked ? 600 : undefined }}
+                                    >
+                                        {liked ? "Liked." : "Like."}
                                     </span>
                                 </li>
                                 <li>
@@ -109,7 +119,10 @@ const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike,
                                             </p>
                                         </div>
 
-                                        <CommentReactionBadge total={reply.reactionTotal} />
+                                        <CommentReactionBadge
+                                            total={reply.reactionTotal}
+                                            onShowLikes={() => onShowReplyLikes?.(reply.id)}
+                                        />
 
                                         <div className="_comment_reply">
                                             <div className="_comment_reply_num">
@@ -119,9 +132,13 @@ const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike,
                                                             onClick={() => onLikeReply?.(reply.id)}
                                                             role="button"
                                                             tabIndex={0}
-                                                            style={{ cursor: "pointer" }}
+                                                            style={{
+                                                                cursor: "pointer",
+                                                                color: reply.liked ? "#1890FF" : undefined,
+                                                                fontWeight: reply.liked ? 600 : undefined,
+                                                            }}
                                                         >
-                                                            Like.
+                                                            {reply.liked ? "Liked." : "Like."}
                                                         </span>
                                                     </li>
                                                     <li>

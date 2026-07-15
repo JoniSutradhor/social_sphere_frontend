@@ -11,11 +11,6 @@ export interface PostAuthorHeaderProps {
     onAuthorClick?: () => void;
 }
 
-/**
- * PostAuthorHeader
- * Top row of a post: avatar, author name, "X minutes ago . Public",
- * and the options dropdown.
- */
 const PostAuthorHeader: FC<PostAuthorHeaderProps> = ({
     avatarSrc,
     authorName,

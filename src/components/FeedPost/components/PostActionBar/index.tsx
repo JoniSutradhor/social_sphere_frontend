@@ -10,10 +10,6 @@ export interface PostActionBarProps {
     onShare?: () => void;
 }
 
-/**
- * PostActionBar
- * The row of react / comment / share buttons beneath a post.
- */
 const PostActionBar: FC<PostActionBarProps> = ({
     activeReaction = null,
     reactionIcon = <HahaReactionIcon />,

@@ -6,11 +6,10 @@ export interface AppLoaderProps {
 }
 
 const AppLoader = ({ children }: AppLoaderProps) => {
-    const isInitialized = true; // TODO: Replace with actual initialization logic
+    const isInitialized = true;
 
 
     return isInitialized ? (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
         <>{children}</>
     ) : (
         <Initializing />

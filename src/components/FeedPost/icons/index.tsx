@@ -1,11 +1,5 @@
 import { type FC } from "react";
 
-/**
- * Small, presentational icon components.
- * Kept as individual components (rather than one giant switch) so each
- * can be imported and reused independently anywhere in the app.
- */
-
 export const DotsIcon: FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="4" height="17" fill="none" viewBox="0 0 4 17">
         <circle cx="2" cy="2" r="2" fill="#C4C4C4" />

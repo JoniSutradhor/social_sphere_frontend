@@ -3,23 +3,28 @@ import { type FC } from "react";
 export interface ReactionSummaryProps {
     reactorAvatars?: string[];
     extraReactorCount?: number;
+    likeCount?: number;
     commentCount?: number;
     shareCount?: number;
+    onShowLikes?: () => void;
 }
 
-/**
- * ReactionSummary
- * The row showing a stack of reactor avatars, a "+N" overflow count,
- * and the comment/share totals.
- */
 const ReactionSummary: FC<ReactionSummaryProps> = ({
     reactorAvatars = [],
     extraReactorCount = 0,
+    likeCount = 0,
     commentCount = 0,
     shareCount = 0,
+    onShowLikes,
 }) => (
     <div className="_feed_inner_timeline_total_reacts _padd_r24 _padd_l24 _mar_b26">
-        <div className="_feed_inner_timeline_total_reacts_image">
+        <div
+            className="_feed_inner_timeline_total_reacts_image"
+            onClick={likeCount > 0 ? onShowLikes : undefined}
+            role={likeCount > 0 && onShowLikes ? "button" : undefined}
+            tabIndex={likeCount > 0 && onShowLikes ? 0 : undefined}
+            style={likeCount > 0 && onShowLikes ? { cursor: "pointer" } : undefined}
+        >
             {reactorAvatars.map((src, i) => (
                 <img
                     key={i}
@@ -29,6 +34,11 @@ const ReactionSummary: FC<ReactionSummaryProps> = ({
                 />
             ))}
             {extraReactorCount > 0 && <p className="_feed_inner_timeline_total_reacts_para">{extraReactorCount}+</p>}
+            {reactorAvatars.length === 0 && likeCount > 0 && (
+                <p className="_feed_inner_timeline_total_reacts_para">
+                    {likeCount} Like{likeCount !== 1 ? "s" : ""}
+                </p>
+            )}
         </div>
         <div className="_feed_inner_timeline_total_reacts_txt">
             <p className="_feed_inner_timeline_total_reacts_para1">

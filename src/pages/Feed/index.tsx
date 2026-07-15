@@ -13,11 +13,12 @@ import commentImg from "staticImages/comment_img.png";
 import defaultAvatar from "staticImages/profile.png";
 import CreateNewPost from "components/CreatePost";
 import FeedLayout from "layouts/Feed";
-import SocialSphereApiPost, { type Post as ApiPost } from "api/socialSphereApiPost";
+import SocialSphereApiPost, { type Post as ApiPost, type PostVisibility } from "api/socialSphereApiPost";
 import SocialSphereApiComment, {
     type Comment as ApiComment,
     type ReactionType,
 } from "api/socialSphereApiComment";
+import LikesModal, { type LikesModalTarget } from "components/LikesModal";
 import { toast } from "core_components/Toaster";
 import { formatRelativeTime } from "utils/formatRelativeTime";
 import { resolveUploadUrl } from "utils/resolveUploadUrl";
@@ -33,6 +34,7 @@ interface FeedPostEntry {
     timeAgo: string;
     content: string;
     image?: string;
+    visibility: PostVisibility;
     reactorAvatars?: string[];
     extraReactorCount?: number;
     shareCount?: number;
@@ -44,8 +46,6 @@ interface FeedPostEntry {
     nextCommentsCursor: string | null;
 }
 
-// One static example so the feed shows what a richer post (image, multiple
-// reactions) looks like — everything else on the page is loaded for real.
 const STATIC_EXAMPLE_POST: FeedPostEntry = {
     id: "static-example",
     authorName: "Karim Saif",
@@ -53,6 +53,7 @@ const STATIC_EXAMPLE_POST: FeedPostEntry = {
     timeAgo: "5 minute",
     content: "-Healthy Tracking App",
     image: timeLineImg,
+    visibility: "public",
     reactorAvatars: [reactImg1, reactImg2, reactImg3, reactImg4, reactImg5],
     extraReactorCount: 9,
     shareCount: 122,
@@ -82,6 +83,7 @@ const mapReply = (comment: ApiComment): UIComment => {
         authorAvatar: comment.user.avatar || defaultAvatar,
         text: comment.content,
         reactionTotal: comment.likeCount,
+        liked: comment.userReaction === "like",
         timeAgo: formatRelativeTime(comment.createdAt),
     };
 };
@@ -96,8 +98,9 @@ const mapPost = (post: ApiPost): FeedPostEntry => {
         timeAgo: formatRelativeTime(post.createdAt),
         content: post.content,
         image: resolveUploadUrl(post.imageUrl),
+        visibility: post.visibility,
         likeCount: post.likeCount,
-        userReaction: null,
+        userReaction: post.userReaction,
         commentCount: post.commentCount,
         comments: [],
         hasMoreComments: false,
@@ -108,9 +111,6 @@ const mapPost = (post: ApiPost): FeedPostEntry => {
 const getApiErrorMessage = (err: unknown, fallback: string) =>
     err instanceof Error ? err.message : fallback;
 
-// A comment's replies are eagerly loaded alongside it (one level deep — the
-// backend won't let a reply have its own replies), so the thread is just
-// there once the post's comments come in, no click-to-reveal needed.
 const loadCommentWithReplies = async (comment: ApiComment): Promise<UIComment> => {
     const mapped = mapReply(comment);
     if (comment.replyCount === 0) return mapped;
@@ -143,6 +143,7 @@ function FeedPostWrapper() {
     const [posts, setPosts] = useState<FeedPostEntry[]>([]);
     const [nextPostsCursor, setNextPostsCursor] = useState<string | null>(null);
     const [hasMorePosts, setHasMorePosts] = useState(false);
+    const [likesTarget, setLikesTarget] = useState<LikesModalTarget>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -165,9 +166,9 @@ function FeedPostWrapper() {
         };
     }, []);
 
-    const handleCreatePost = async (text: string, image?: File) => {
+    const handleCreatePost = async (text: string, image?: File, visibility: PostVisibility = "public") => {
         try {
-            const created = await SocialSphereApiPost.createPost(text, image);
+            const created = await SocialSphereApiPost.createPost(text, image, visibility);
             setPosts((prev) => [mapPost(created), ...prev]);
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to create post"));
@@ -239,14 +240,16 @@ function FeedPostWrapper() {
 
     const handleLikeComment = async (postId: string, commentId: string) => {
         try {
-            const { likeCount } = await SocialSphereApiComment.likeComment(commentId);
+            const { likeCount, userReaction } = await SocialSphereApiComment.likeComment(commentId);
             setPosts((prev) =>
                 prev.map((p) =>
                     p.id === postId
                         ? {
                               ...p,
                               comments: p.comments.map((c) =>
-                                  c.id === commentId ? { ...c, reactionTotal: likeCount } : c
+                                  c.id === commentId
+                                      ? { ...c, reactionTotal: likeCount, liked: userReaction === "like" }
+                                      : c
                               ),
                           }
                         : p
@@ -259,7 +262,7 @@ function FeedPostWrapper() {
 
     const handleLikeReply = async (postId: string, replyId: string) => {
         try {
-            const { likeCount } = await SocialSphereApiComment.likeComment(replyId);
+            const { likeCount, userReaction } = await SocialSphereApiComment.likeComment(replyId);
             setPosts((prev) =>
                 prev.map((p) => {
                     if (p.id !== postId) return p;
@@ -270,7 +273,9 @@ function FeedPostWrapper() {
                                 ? {
                                       ...c,
                                       replies: c.replies.map((r) =>
-                                          r.id === replyId ? { ...r, reactionTotal: likeCount } : r
+                                          r.id === replyId
+                                              ? { ...r, reactionTotal: likeCount, liked: userReaction === "like" }
+                                              : r
                                       ),
                                   }
                                 : c
@@ -282,6 +287,9 @@ function FeedPostWrapper() {
             toast.error(getApiErrorMessage(err, "Failed to like reply"));
         }
     };
+
+    const handleShowPostLikes = (postId: string) => setLikesTarget({ type: "post", id: postId });
+    const handleShowCommentLikes = (commentId: string) => setLikesTarget({ type: "comment", id: commentId });
 
     const handleLoadMoreComments = async (postId: string) => {
         const post = posts.find((p) => p.id === postId);
@@ -314,10 +322,12 @@ function FeedPostWrapper() {
     const toPostProps = (post: FeedPostEntry): UIPost => ({
         author: { name: post.authorName, avatar: post.authorAvatar, href: "profile.html" },
         timeAgo: post.timeAgo,
+        visibility: post.visibility === "private" ? "Only me" : "Public",
         title: post.content,
         image: post.image,
         reactorAvatars: post.reactorAvatars,
         extraReactorCount: post.extraReactorCount,
+        likeCount: post.likeCount,
         shareCount: post.shareCount,
         commentCount: post.commentCount,
         hasMoreComments: post.hasMoreComments,
@@ -350,6 +360,9 @@ function FeedPostWrapper() {
                             isStatic ? undefined : (commentId, text) => handleReplyToComment(post.id, commentId, text)
                         }
                         onLikeReply={isStatic ? undefined : (replyId) => handleLikeReply(post.id, replyId)}
+                        onShowPostLikes={isStatic ? undefined : () => handleShowPostLikes(post.id)}
+                        onShowCommentLikes={isStatic ? undefined : handleShowCommentLikes}
+                        onShowReplyLikes={isStatic ? undefined : handleShowCommentLikes}
                     />
                 );
             })}
@@ -361,6 +374,8 @@ function FeedPostWrapper() {
                     </button>
                 </div>
             )}
+
+            <LikesModal target={likesTarget} onClose={() => setLikesTarget(null)} />
         </FeedLayout>
     );
 }

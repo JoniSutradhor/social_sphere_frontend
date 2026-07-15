@@ -37,7 +37,6 @@ const notifications: NotificationItem[] = [
     },
 ];
 
-// Original markup repeated this pair 9 times
 const notificationFeed: NotificationItem[] = Array.from({ length: 9 }, (_, i) => [
     { ...notifications[0], id: i * 2 + 1 },
     { ...notifications[1], id: i * 2 + 2 },
