@@ -42,7 +42,7 @@ class SocialSphereApiPost {
 
     static createPost(content: string, image?: File, visibility?: PostVisibility) {
         if (!image) {
-            return Requester.post<Post>('/posts', { content, visibility });
+            return Requester.post<Post & { message: string }>('/posts', { content, visibility });
         }
 
         const formData = new FormData();
@@ -50,7 +50,7 @@ class SocialSphereApiPost {
         if (visibility) formData.append('visibility', visibility);
         formData.append('image', image);
 
-        return Requester.post<Post>('/posts', formData, {
+        return Requester.post<Post & { message: string }>('/posts', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     }

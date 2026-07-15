@@ -170,6 +170,7 @@ function FeedPostWrapper() {
         try {
             const created = await SocialSphereApiPost.createPost(text, image, visibility);
             setPosts((prev) => [mapPost(created), ...prev]);
+            toast.success(created.message);
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to create post"));
         }
