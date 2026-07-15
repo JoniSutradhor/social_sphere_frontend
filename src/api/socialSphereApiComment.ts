@@ -1,5 +1,4 @@
 import Requester from 'utils/requester';
-import config from 'utils/config';
 
 export type ReactionType = 'like' | 'dislike';
 
@@ -14,7 +13,7 @@ export interface CommentAuthor {
 export interface Comment {
     _id: string;
     user: CommentAuthor;
-    pageId: string;
+    postId: string;
     parentId: string | null;
     rootId: string | null;
     content: string;
@@ -40,7 +39,7 @@ export interface ReactionResult {
     likeCount: number;
     dislikeCount: number;
     userReaction: ReactionType | null;
-    pageId: string;
+    postId: string;
 }
 
 export interface ListCommentsParams {
@@ -54,19 +53,14 @@ export interface ListRepliesParams {
     limit?: number;
 }
 
-// Comment.imageUrl is a server-relative path (e.g. "/uploads/xyz.jpg") — this
-// resolves it against the API's own origin, not the app's own asset host.
-export const resolveImageUrl = (imageUrl: string | null): string | undefined =>
-    imageUrl ? `${config.social_sphere_api_url}${imageUrl}` : undefined;
-
 class SocialSphereApiComment {
     /**
-     * Top-level comments for a page (cursor-paginated)
+     * Top-level comments on a post (cursor-paginated)
      */
-    static getComments(pageId = 'main', params: ListCommentsParams = {}) {
+    static getComments(postId: string, params: ListCommentsParams = {}) {
         return Requester.get<CursorPage<Comment>>('/comments', {
             params: {
-                pageId,
+                postId,
                 cursor: params.cursor,
                 limit: params.limit,
                 sortBy: params.sortBy,
@@ -87,16 +81,16 @@ class SocialSphereApiComment {
     }
 
     /**
-     * Create a top-level comment, optionally with an image attached
+     * Create a top-level comment on a post, optionally with an image attached
      */
-    static createComment(content: string, pageId = 'main', image?: File) {
+    static createComment(content: string, postId: string, image?: File) {
         if (!image) {
-            return Requester.post<Comment>('/comments', { content, pageId });
+            return Requester.post<Comment>('/comments', { content, postId });
         }
 
         const formData = new FormData();
         formData.append('content', content);
-        formData.append('pageId', pageId);
+        formData.append('postId', postId);
         formData.append('image', image);
 
         // Requester's axios instance defaults to Content-Type: application/json,
@@ -109,7 +103,7 @@ class SocialSphereApiComment {
     }
 
     /**
-     * Reply to a comment — the backend derives pageId from the parent comment
+     * Reply to a comment — the backend derives postId from the parent comment
      */
     static createReply(commentId: string, content: string) {
         return Requester.post<Comment>(`/comments/${commentId}/reply`, { content });

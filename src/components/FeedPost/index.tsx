@@ -21,6 +21,7 @@ export interface FeedPostProps {
     onLikeComment?: (commentId: string) => void;
     onShareComment?: (commentId: string) => void;
     onReplyComment?: (commentId: string, text: string) => void;
+    onLikeReply?: (replyId: string) => void;
 }
 
 /**
@@ -45,6 +46,7 @@ const FeedPost: FC<FeedPostProps> = ({
     onLikeComment,
     onShareComment,
     onReplyComment,
+    onLikeReply,
 }) => {
     const {
         author,
@@ -93,6 +95,7 @@ const FeedPost: FC<FeedPostProps> = ({
                 onLike={onLikeComment}
                 onShare={onShareComment}
                 onReply={onReplyComment}
+                onLikeReply={onLikeReply}
             />
         </div>
     );

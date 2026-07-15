@@ -1,74 +1,36 @@
 import Requester from 'utils/requester';
-import type { Comment } from 'api/socialSphereApiComment';
-
-export type Visibility = 'public' | 'private';
-
-export interface UserSummary {
-    id: number;
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-}
-
-export interface LikeUser {
-    id: number;
-    firstName: string;
-    lastName: string;
-}
+import type { CommentAuthor, CursorPage, ReactionResult } from 'api/socialSphereApiComment';
 
 export interface Post {
-    id: number;
+    _id: string;
+    user: CommentAuthor;
     content: string;
-    image?: string;
-    visibility: Visibility;
-
-    author: UserSummary;
-
-    likesCount: number;
-    commentsCount: number;
-
-    likedByMe: boolean;
-
+    imageUrl: string | null;
+    likeCount: number;
+    dislikeCount: number;
+    commentCount: number;
+    isEdited: boolean;
+    isDeleted: boolean;
     createdAt: string;
-
-    comments?: Comment[];
+    updatedAt: string;
 }
 
-export interface PaginatedPostsResponse {
-    items: Post[];
-    page: number;
-    limit: number;
-    hasNextPage: boolean;
-}
-
-export interface CreatePostRequest {
-    content: string;
-    image?: File;
-    visibility: Visibility;
+export interface ListPostsParams {
+    cursor?: string;
+    limit?: number;
+    sortBy?: 'newest' | 'mostLiked';
 }
 
 class SocialSphereApiPost {
     /**
-     * Feed
+     * Feed (cursor-paginated)
      */
-    static getFeed(page = 1, limit = 10) {
-        return Requester.get<PaginatedPostsResponse>('/posts', {
+    static getFeed(params: ListPostsParams = {}) {
+        return Requester.get<CursorPage<Post>>('/posts', {
             params: {
-                page,
-                limit,
-                sort: 'newest',
-            },
-        });
-    }
-
-    /**
-     * My Posts
-     */
-    static getMyPosts(page = 1, limit = 10) {
-        return Requester.get<PaginatedPostsResponse>('/posts/me', {
-            params: {
-                page,
-                limit,
+                cursor: params.cursor,
+                limit: params.limit,
+                sortBy: params.sortBy,
             },
         });
     }
@@ -76,69 +38,72 @@ class SocialSphereApiPost {
     /**
      * Single post
      */
-    static getPost(postId: number) {
+    static getPost(postId: string) {
         return Requester.get<Post>(`/posts/${postId}`);
     }
 
     /**
-     * Create post
+     * Create a post, optionally with an image attached
      */
-    static async createPost(data: CreatePostRequest) {
-        const formData = new FormData();
-
-        formData.append('content', data.content);
-        formData.append('visibility', data.visibility);
-
-        if (data.image) {
-            formData.append('image', data.image);
+    static createPost(content: string, image?: File) {
+        if (!image) {
+            return Requester.post<Post>('/posts', { content });
         }
 
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('image', image);
+
+        // See socialSphereApiComment.ts for why the Content-Type must be set
+        // explicitly here — otherwise axios JSON-stringifies the FormData.
         return Requester.post<Post>('/posts', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
     }
 
     /**
-     * Update post
+     * Edit a post (author only) — pass `image` to replace the attached
+     * image, or `removeImage` to clear it without replacing
      */
     static updatePost(
-        postId: number,
-        payload: {
-            content: string;
-            visibility: Visibility;
-        }
+        postId: string,
+        content: string,
+        options: { image?: File; removeImage?: boolean } = {}
     ) {
-        return Requester.put<Post>(`/posts/${postId}`, payload);
+        if (!options.image && !options.removeImage) {
+            return Requester.put<Post>(`/posts/${postId}`, { content });
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+        if (options.image) formData.append('image', options.image);
+        if (options.removeImage) formData.append('removeImage', 'true');
+
+        return Requester.put<Post>(`/posts/${postId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     }
 
     /**
-     * Delete post
+     * Delete a post (author only)
      */
-    static deletePost(postId: number) {
-        return Requester.delete(`/posts/${postId}`);
+    static deletePost(postId: string) {
+        return Requester.delete<{ message: string }>(`/posts/${postId}`);
     }
 
     /**
-     * Like post
+     * Toggle the current user's like on a post (liking again removes it,
+     * liking after a dislike swaps it)
      */
-    static likePost(postId: number) {
-        return Requester.post(`/posts/${postId}/like`);
+    static likePost(postId: string) {
+        return Requester.post<ReactionResult>(`/posts/${postId}/like`);
     }
 
     /**
-     * Unlike post
+     * Toggle the current user's dislike on a post
      */
-    static unlikePost(postId: number) {
-        return Requester.delete(`/posts/${postId}/like`);
-    }
-
-    /**
-     * Users who liked post
-     */
-    static getPostLikes(postId: number) {
-        return Requester.get<LikeUser[]>(`/posts/${postId}/likes`);
+    static dislikePost(postId: string) {
+        return Requester.post<ReactionResult>(`/posts/${postId}/dislike`);
     }
 }
 

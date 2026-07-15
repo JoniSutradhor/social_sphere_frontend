@@ -15,6 +15,9 @@ export interface Comment {
     reactionTotal: number;
     timeAgo: string;
     profileHref?: string;
+    // Replies are one level deep (matches the backend's own rule that you
+    // can't reply to a reply), and are eagerly loaded alongside the comment.
+    replies?: Comment[];
 }
 
 export interface PostAuthor {

@@ -13,6 +13,7 @@ export interface CommentsSectionProps {
     onLike?: (commentId: string) => void;
     onShare?: (commentId: string) => void;
     onReply?: (commentId: string, text: string) => void;
+    onLikeReply?: (replyId: string) => void;
 }
 
 /**
@@ -30,6 +31,7 @@ const CommentsSection: FC<CommentsSectionProps> = ({
     onLike,
     onShare,
     onReply,
+    onLikeReply,
 }) => {
     const [loadingMore, setLoadingMore] = useState(false);
 
@@ -63,6 +65,7 @@ const CommentsSection: FC<CommentsSectionProps> = ({
                         onLike={() => onLike?.(comment.id)}
                         onShare={() => onShare?.(comment.id)}
                         onReplySubmit={onReply}
+                        onLikeReply={onLikeReply}
                     />
                 ))}
 

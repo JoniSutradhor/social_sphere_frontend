@@ -9,16 +9,18 @@ export interface CommentItemProps {
     onLike?: () => void;
     onShare?: () => void;
     onReplySubmit?: (commentId: string, text: string) => void;
+    onLikeReply?: (replyId: string) => void;
 }
 
 /**
  * CommentItem
  * Renders one comment (avatar, name, text, reaction total, and the
- * like/reply/share/timestamp row), plus a collapsible reply composer.
+ * like/reply/share/timestamp row), plus a collapsible reply composer and
+ * any existing replies (one level deep — replies can't have their own).
  */
-const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike, onShare, onReplySubmit }) => {
+const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike, onShare, onReplySubmit, onLikeReply }) => {
     const [replying, setReplying] = useState(false);
-    const { id, authorName, authorAvatar, text, reactionTotal, timeAgo, profileHref = "profile.html" } = comment;
+    const { id, authorName, authorAvatar, text, reactionTotal, timeAgo, profileHref = "profile.html", replies } = comment;
 
     return (
         <div className="_comment_main">
@@ -81,6 +83,58 @@ const CommentItem: FC<CommentItemProps> = ({ comment, currentUserAvatar, onLike,
                             setReplying(false);
                         }}
                     />
+                )}
+
+                {replies && replies.length > 0 && (
+                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+                        {replies.map((reply) => (
+                            <div className="_comment_main" key={reply.id}>
+                                <div className="_comment_image">
+                                    <a href={reply.profileHref ?? "profile.html"} className="_comment_image_link">
+                                        <img src={reply.authorAvatar} alt={reply.authorName} className="_comment_img1" />
+                                    </a>
+                                </div>
+                                <div className="_comment_area">
+                                    <div className="_comment_details">
+                                        <div className="_comment_details_top">
+                                            <div className="_comment_name">
+                                                <a href={reply.profileHref ?? "profile.html"}>
+                                                    <h4 className="_comment_name_title">{reply.authorName}</h4>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="_comment_status">
+                                            <p className="_comment_status_text">
+                                                <span>{reply.text}</span>
+                                            </p>
+                                        </div>
+
+                                        <CommentReactionBadge total={reply.reactionTotal} />
+
+                                        <div className="_comment_reply">
+                                            <div className="_comment_reply_num">
+                                                <ul className="_comment_reply_list">
+                                                    <li>
+                                                        <span
+                                                            onClick={() => onLikeReply?.(reply.id)}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            style={{ cursor: "pointer" }}
+                                                        >
+                                                            Like.
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span className="_time_link">{reply.timeAgo}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
