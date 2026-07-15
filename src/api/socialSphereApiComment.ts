@@ -1,4 +1,5 @@
 import Requester from 'utils/requester';
+import type { ApiDataResponse, ApiMessageResponse, PaginationMeta } from 'api/apiTypes';
 
 export type ReactionType = 'like' | 'dislike';
 
@@ -32,12 +33,9 @@ export interface Reactor {
     reactedAt: string;
 }
 
-export interface CursorPage<T> {
+export interface CursorPage<T> extends ApiMessageResponse {
     data: T[];
-    pagination: {
-        nextCursor: string | null;
-        hasMore: boolean;
-    };
+    pagination: PaginationMeta;
 }
 
 export interface ReactionResult {
@@ -81,7 +79,7 @@ class SocialSphereApiComment {
 
     static createComment(content: string, postId: string, image?: File) {
         if (!image) {
-            return Requester.post<Comment>('/comments', { content, postId });
+            return Requester.post<ApiDataResponse<Comment>>('/comments', { content, postId });
         }
 
         const formData = new FormData();
@@ -89,13 +87,13 @@ class SocialSphereApiComment {
         formData.append('postId', postId);
         formData.append('image', image);
 
-        return Requester.post<Comment>('/comments', formData, {
+        return Requester.post<ApiDataResponse<Comment>>('/comments', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     }
 
     static createReply(commentId: string, content: string) {
-        return Requester.post<Comment>(`/comments/${commentId}/reply`, { content });
+        return Requester.post<ApiDataResponse<Comment>>(`/comments/${commentId}/reply`, { content });
     }
 
     static updateComment(
@@ -104,7 +102,7 @@ class SocialSphereApiComment {
         options: { image?: File; removeImage?: boolean } = {}
     ) {
         if (!options.image && !options.removeImage) {
-            return Requester.put<Comment>(`/comments/${commentId}`, { content });
+            return Requester.put<ApiDataResponse<Comment>>(`/comments/${commentId}`, { content });
         }
 
         const formData = new FormData();
@@ -112,21 +110,21 @@ class SocialSphereApiComment {
         if (options.image) formData.append('image', options.image);
         if (options.removeImage) formData.append('removeImage', 'true');
 
-        return Requester.put<Comment>(`/comments/${commentId}`, formData, {
+        return Requester.put<ApiDataResponse<Comment>>(`/comments/${commentId}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     }
 
     static deleteComment(commentId: string) {
-        return Requester.delete<{ message: string }>(`/comments/${commentId}`);
+        return Requester.delete<ApiMessageResponse>(`/comments/${commentId}`);
     }
 
     static likeComment(commentId: string) {
-        return Requester.post<ReactionResult>(`/comments/${commentId}/like`);
+        return Requester.post<ApiDataResponse<ReactionResult>>(`/comments/${commentId}/like`);
     }
 
     static dislikeComment(commentId: string) {
-        return Requester.post<ReactionResult>(`/comments/${commentId}/dislike`);
+        return Requester.post<ApiDataResponse<ReactionResult>>(`/comments/${commentId}/dislike`);
     }
 
     static getCommentLikes(commentId: string, params: { cursor?: string; limit?: number } = {}) {

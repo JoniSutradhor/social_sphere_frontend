@@ -1,5 +1,6 @@
 import Requester from 'utils/requester';
 import type { CommentAuthor, CursorPage, ReactionResult, ReactionType, Reactor } from 'api/socialSphereApiComment';
+import type { ApiDataResponse, ApiMessageResponse } from 'api/apiTypes';
 
 export type PostVisibility = 'public' | 'private';
 
@@ -37,12 +38,12 @@ class SocialSphereApiPost {
     }
 
     static getPost(postId: string) {
-        return Requester.get<Post>(`/posts/${postId}`);
+        return Requester.get<ApiDataResponse<Post>>(`/posts/${postId}`);
     }
 
     static createPost(content: string, image?: File, visibility?: PostVisibility) {
         if (!image) {
-            return Requester.post<Post & { message: string }>('/posts', { content, visibility });
+            return Requester.post<ApiDataResponse<Post>>('/posts', { content, visibility });
         }
 
         const formData = new FormData();
@@ -50,7 +51,7 @@ class SocialSphereApiPost {
         if (visibility) formData.append('visibility', visibility);
         formData.append('image', image);
 
-        return Requester.post<Post & { message: string }>('/posts', formData, {
+        return Requester.post<ApiDataResponse<Post>>('/posts', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     }
@@ -61,7 +62,7 @@ class SocialSphereApiPost {
         options: { image?: File; removeImage?: boolean; visibility?: PostVisibility } = {}
     ) {
         if (!options.image && !options.removeImage) {
-            return Requester.put<Post>(`/posts/${postId}`, { content, visibility: options.visibility });
+            return Requester.put<ApiDataResponse<Post>>(`/posts/${postId}`, { content, visibility: options.visibility });
         }
 
         const formData = new FormData();
@@ -70,21 +71,21 @@ class SocialSphereApiPost {
         if (options.removeImage) formData.append('removeImage', 'true');
         if (options.visibility) formData.append('visibility', options.visibility);
 
-        return Requester.put<Post>(`/posts/${postId}`, formData, {
+        return Requester.put<ApiDataResponse<Post>>(`/posts/${postId}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     }
 
     static deletePost(postId: string) {
-        return Requester.delete<{ message: string }>(`/posts/${postId}`);
+        return Requester.delete<ApiMessageResponse>(`/posts/${postId}`);
     }
 
     static likePost(postId: string) {
-        return Requester.post<ReactionResult>(`/posts/${postId}/like`);
+        return Requester.post<ApiDataResponse<ReactionResult>>(`/posts/${postId}/like`);
     }
 
     static dislikePost(postId: string) {
-        return Requester.post<ReactionResult>(`/posts/${postId}/dislike`);
+        return Requester.post<ApiDataResponse<ReactionResult>>(`/posts/${postId}/dislike`);
     }
 
     static getPostLikes(postId: string, params: { cursor?: string; limit?: number } = {}) {

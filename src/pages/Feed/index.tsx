@@ -168,9 +168,9 @@ function FeedPostWrapper() {
 
     const handleCreatePost = async (text: string, image?: File, visibility: PostVisibility = "public") => {
         try {
-            const created = await SocialSphereApiPost.createPost(text, image, visibility);
-            setPosts((prev) => [mapPost(created), ...prev]);
-            toast.success(created.message);
+            const { data, message } = await SocialSphereApiPost.createPost(text, image, visibility);
+            setPosts((prev) => [mapPost(data), ...prev]);
+            toast.success(message);
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to create post"));
         }
@@ -195,7 +195,8 @@ function FeedPostWrapper() {
 
     const handleReactPost = async (postId: string) => {
         try {
-            const { likeCount, userReaction } = await SocialSphereApiPost.likePost(postId);
+            const { data } = await SocialSphereApiPost.likePost(postId);
+            const { likeCount, userReaction } = data;
             setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, likeCount, userReaction } : p)));
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to react to post"));
@@ -204,7 +205,7 @@ function FeedPostWrapper() {
 
     const handleCreateComment = async (postId: string, text: string) => {
         try {
-            const created = await SocialSphereApiComment.createComment(text, postId);
+            const { data: created } = await SocialSphereApiComment.createComment(text, postId);
             const comment = mapReply(created);
             setPosts((prev) =>
                 prev.map((p) =>
@@ -220,7 +221,7 @@ function FeedPostWrapper() {
 
     const handleReplyToComment = async (postId: string, commentId: string, text: string) => {
         try {
-            const created = await SocialSphereApiComment.createReply(commentId, text);
+            const { data: created } = await SocialSphereApiComment.createReply(commentId, text);
             const reply = mapReply(created);
             setPosts((prev) =>
                 prev.map((p) =>
@@ -241,7 +242,8 @@ function FeedPostWrapper() {
 
     const handleLikeComment = async (postId: string, commentId: string) => {
         try {
-            const { likeCount, userReaction } = await SocialSphereApiComment.likeComment(commentId);
+            const { data } = await SocialSphereApiComment.likeComment(commentId);
+            const { likeCount, userReaction } = data;
             setPosts((prev) =>
                 prev.map((p) =>
                     p.id === postId
@@ -263,7 +265,8 @@ function FeedPostWrapper() {
 
     const handleLikeReply = async (postId: string, replyId: string) => {
         try {
-            const { likeCount, userReaction } = await SocialSphereApiComment.likeComment(replyId);
+            const { data } = await SocialSphereApiComment.likeComment(replyId);
+            const { likeCount, userReaction } = data;
             setPosts((prev) =>
                 prev.map((p) => {
                     if (p.id !== postId) return p;

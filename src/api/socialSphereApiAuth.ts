@@ -1,5 +1,6 @@
 import type { LoginFormData } from 'pages/Login/validation/index.schema';
 import type { RegistrationFormData } from 'pages/Registration/validation/index.schema';
+import type { ApiDataResponse } from 'api/apiTypes';
 import Requester from 'utils/requester';
 
 export interface User {
@@ -9,31 +10,14 @@ export interface User {
     email: string;
 }
 
-export interface LoginResponse {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    token: string;
-}
-
-export interface RegisterResponse {
-    success: boolean;
-    message: string;
-    data: {
-        token: string;
-        user: User;
-    };
-}
-
-export type AuthResponse = LoginResponse | RegisterResponse;
+export type AuthResponse = ApiDataResponse<{ token: string; user: User }>;
 
 class SocialSphereApiAuth {
-    static login(data: LoginFormData): Promise<LoginResponse> {
-        return Requester.post<LoginResponse>('/auth/login', data);
+    static login(data: LoginFormData): Promise<AuthResponse> {
+        return Requester.post<AuthResponse>('/auth/login', data);
     }
 
-    static register(data: RegistrationFormData): Promise<RegisterResponse> {
+    static register(data: RegistrationFormData): Promise<AuthResponse> {
         const payload = {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -41,7 +25,7 @@ class SocialSphereApiAuth {
             password: data.password,
         };
 
-        return Requester.post<RegisterResponse>('/auth/register', payload);
+        return Requester.post<AuthResponse>('/auth/register', payload);
     }
 
     static logout() {
@@ -50,18 +34,7 @@ class SocialSphereApiAuth {
     }
 
     static saveSession(response: AuthResponse) {
-        const { token, user } =
-            'data' in response
-                ? response.data
-                : {
-                      token: response.token,
-                      user: {
-                          id: response._id,
-                          firstName: response.firstName,
-                          lastName: response.lastName,
-                          email: response.email,
-                      },
-                  };
+        const { token, user } = response.data;
 
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
